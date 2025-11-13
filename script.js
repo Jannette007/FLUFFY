@@ -708,7 +708,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       openSimpleModal('About F.L.U.F.F.Y',
         `<p><strong>F.L.U.F.F.Y</strong> is a turn-based card battle where creatures
          from different worlds fight for asylum on your planet.</p>
-         <p>Developed for your software game lab project as a digital
+         <p>Developed for Game comp lab 9: Software Game, a digital
          adaptation of the physical card game.</p>`);
     });
   }
