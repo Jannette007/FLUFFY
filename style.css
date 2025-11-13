@@ -1,0 +1,428 @@
+/* ===========================================
+   F.L.U.F.F.Y - style.css (Horizontal Layout)
+   =========================================== */
+
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background-color: #111827;
+  color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Header & Controls ---------- */
+h1 {
+  text-align: center;
+  color: #60a5fa;
+  margin-top: 20px;
+}
+
+#controls {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 15px;
+  align-items: center;
+}
+
+#turn-indicator {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #facc15;
+  margin: 10px;
+  text-align: center;
+}
+
+#roll-result {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+button:hover { background-color: #1d4ed8; }
+button:disabled { background-color: #374151; cursor: not-allowed; }
+
+/* ---------- Horizontal Game Board ---------- */
+#game-board {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  width: 95%;
+  max-width: 1600px;
+  margin: 20px auto;
+  padding: 10px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+/* Game appears after Start Game */
+body.game-started #game-board {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- Player Panels ---------- */
+.player-area {
+  flex: 1;
+  border: 2px solid #1f2937;
+  border-radius: 10px;
+  padding: 10px;
+  background: #1e293b;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.3s, border-color 0.3s;
+  min-width: 400px;
+  max-width: 550px;
+}
+
+/* 🌟 Active Player Highlight (with pulse animation) */
+@keyframes activePulse {
+  0%   { box-shadow: 0 0 8px rgba(250, 204, 21, 0.2); border-color: #facc15; }
+  50%  { box-shadow: 0 0 25px rgba(250, 204, 21, 0.8); border-color: #fde68a; }
+  100% { box-shadow: 0 0 8px rgba(250, 204, 21, 0.2); border-color: #facc15; }
+}
+
+.player-area.active {
+  border-color: #facc15;
+  animation: activePulse 1.5s infinite ease-in-out;
+}
+
+/* ---------- Center Column (Log) ---------- */
+#center-panel {
+  flex: 0.8;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Section Titles ---------- */
+.section-label {
+  font-weight: 700;
+  margin: 8px 0 4px;
+  color: #93c5fd;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+/* ---------- Combat Grid ---------- */
+.combat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  justify-items: center;
+  margin-bottom: 10px;
+}
+
+/* ---------- Specials Row ---------- */
+.special-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+}
+
+/* ---------- Graveyard ---------- */
+.graveyard {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 5px;
+}
+.grave-card {
+  width: 60px;
+  height: 80px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: grayscale(1) brightness(0.6);
+  border-radius: 6px;
+  border: 1px solid #444;
+  opacity: 0.8;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.grave-card:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* ---------- Card Styling ---------- */
+.card {
+  background: #374151;
+  border-radius: 10px;
+  padding: 6px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s, outline 0.2s;
+}
+.card:hover { transform: scale(1.05); }
+
+.img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  border-radius: 8px;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 5px 0;
+}
+
+/* ---------- HP Bar ---------- */
+.hpbar {
+  width: 100%;
+  height: 6px;
+  background-color: #4b5563;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+.hpfill {
+  height: 100%;
+  background-color: #22c55e;
+  width: 100%;
+  transition: width 0.3s;
+}
+.hptext {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* ---------- Card Buttons ---------- */
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* ---------- Selected / Target Highlights ---------- */
+.card.selected-own {
+  outline: 3px solid #3b82f6;
+  box-shadow: 0 0 12px #3b82f6;
+}
+.card.selected-target {
+  outline: 3px solid #ef4444;
+  box-shadow: 0 0 12px #ef4444;
+}
+
+/* ---------- Game Log ---------- */
+#log {
+  width: 100%;
+  max-width: 380px;
+  height: 300px;
+  overflow-y: auto;
+  background-color: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 10px;
+}
+.entry {
+  font-size: 0.85rem;
+  margin-bottom: 3px;
+}
+
+/* ---------- Modal (Heal/Revive/Swap/GameOver/Info) ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* dark dim overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.panel {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 15px;
+  min-width: 320px;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+.panel h3, .panel h2 {
+  margin-top: 0;
+}
+.picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.picker-item {
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  width: 100px;
+  padding: 5px;
+  text-align: center;
+  color: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.picker-item:hover {
+  transform: scale(1.05);
+  border-color: #60a5fa;
+  box-shadow: 0 0 10px #3b82f6;
+}
+.picker-item.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px #3b82f6;
+  transform: scale(1.05);
+  background: #1e3a8a;
+}
+.picker-thumb {
+  width: 100%;
+  height: 80px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 6px;
+  margin-bottom: 3px;
+}
+
+/* Game over panel */
+.game-over-panel {
+  text-align: center;
+}
+
+.info-image {
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto 10px;
+}
+
+/* ---------- Confetti ---------- */
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation: confFall 3s linear forwards;
+  z-index: 1500;
+}
+@keyframes confFall {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* ---------- MAIN MENU ---------- */
+#main-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  background: linear-gradient(-45deg, #020617, #0f172a, #1e3a8a, #0369a1);
+  background-size: 400% 400%;
+  animation: menuGradient 14s ease infinite;
+
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+@keyframes menuGradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body.game-started #main-menu {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.02);
+}
+
+.menu-inner {
+  text-align: center;
+  padding: 30px 40px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+}
+
+.menu-logo {
+  width: 160px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(59,130,246,0.7);
+  margin-bottom: 10px;
+}
+
+.menu-title {
+  margin: 5px 0;
+  font-size: 2.2rem;
+  letter-spacing: 0.12em;
+}
+
+.menu-subtitle {
+  margin-top: 0;
+  margin-bottom: 18px;
+  color: #9ca3af;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+  min-width: 180px;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fadeInUp 0.4s ease-out; }
+
+/* ---------- Responsive Fallback ---------- */
+@media (max-width: 1100px) {
+  #game-board {
+    flex-direction: column;
+    align-items: center;
+  }
+  #p1-hand, #p2-hand, #center-panel {
+    width: 90%;
+    max-width: none;
+  }
+}
