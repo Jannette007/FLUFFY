@@ -1,5 +1,5 @@
 // ==============================
-// F.L.U.F.F.Y - script.js (3x3 layout + Main Menu)
+// F.L.U.F.F.Y - script.js (3x3 layout + Main Menu + AI Toggle)
 // ==============================
 
 // ---------- DATA ----------
@@ -136,6 +136,9 @@ function spawnConfetti(count=80, duration=3500){
   }, duration);
 }
 
+// ---------- AI TOGGLE ----------
+let AI_ENABLED = false;  // false = Human vs Human, true = Player 2 is AI
+
 // ---------- STATE ----------
 const state = {
   players: [
@@ -162,12 +165,20 @@ function setupGame(){
   $('#log').innerHTML = '';
 
   // initiative: both roll; reroll on tie
-  let p1,p2; do{p1=d20();p2=d20();}while(p1===p2);
+  let p1,p2; 
+  do{p1=d20();p2=d20();}while(p1===p2);
   state.current = (p1>p2)?0:1;
   log(`Start Roll — P1:${p1}, P2:${p2}. ${state.players[state.current].name} starts.`);
   $('#roll-result').textContent=`P1:${p1} vs P2:${p2} → ${state.players[state.current].name} starts`;
 
-  dealCards(); render(); updateTurnIndicator();
+  dealCards(); 
+  render(); 
+  updateTurnIndicator();
+
+  // If AI is enabled and AI starts, schedule its turn
+  if (AI_ENABLED && state.current === 1 && !state.gameOver){
+    scheduleAITurn();
+  }
 }
 
 function dealCards(){
@@ -236,7 +247,8 @@ function renderGrid(cards,owner,isSpecial=false){
 function renderCard(card,owner,isSpecial){
   const tpl=document.getElementById('card-template');
   const node=tpl.content.firstElementChild.cloneNode(true);
-  node.dataset.cardId=card.id; node.dataset.owner=owner.id;
+  node.dataset.cardId=card.id; 
+  node.dataset.owner=owner.id;
   node.querySelector('.img').style.backgroundImage=`url('${card.img||''}')`;
   node.querySelector('.name').textContent=card.name+(card.type==='combat'?'':' • '+card.type.toUpperCase());
 
@@ -253,19 +265,39 @@ function renderCard(card,owner,isSpecial){
     updateHPUI(node,card);
     const btn=document.createElement('button');
     btn.textContent=(owner.id===state.current?'Select':'Target');
-    btn.disabled=(owner.id===state.current && state.attackRoll==null) || state.gameOver;
+
+    // disable logic:
+    const isAITurn = AI_ENABLED && state.current === 1;
+    // If it's AI's turn and this card belongs to Player 2, disable manual clicking
+    const disableAITurnClick = isAITurn && owner.id === 1;
+
+    btn.disabled = (
+      (owner.id===state.current && state.attackRoll==null) ||
+      state.gameOver ||
+      disableAITurnClick
+    );
+
     btn.onclick=()=>{
       if(state.gameOver) return;
+      const isAITurnNow = AI_ENABLED && state.current === 1;
+      if (isAITurnNow && owner.id === 1){
+        // Player cannot control AI's cards
+        log("AI is thinking... please wait.");
+        return;
+      }
+
       if(owner.id===state.current){
-        if(!card.alive)return log('Dead card.');
-        if(state.attackRoll==null)return log('Roll first.');
+        // selecting own attacker
+        if(!card.alive) return log('Dead card.');
+        if(state.attackRoll==null) return log('Roll first.');
         state.selectedOwn=card;
         state.targetOpponent=null;
         log(`${owner.name} selected ${card.name}, now pick target.`);
         render();
       }else{
-        if(!state.selectedOwn)return log('Select your attacker.');
-        if(!card.alive)return log('Target dead.');
+        // targeting opponent
+        if(!state.selectedOwn) return log('Select your attacker.');
+        if(!card.alive) return log('Target dead.');
         state.targetOpponent=card; 
         render();
         doAttack();
@@ -273,10 +305,21 @@ function renderCard(card,owner,isSpecial){
     };
     act.appendChild(btn);
   }else{
-    node.querySelector('.hpbar').remove(); node.querySelector('.hptext').remove();
+    node.querySelector('.hpbar').remove(); 
+    node.querySelector('.hptext').remove();
     const play=document.createElement('button');
     play.textContent='Play';
-    play.disabled=(owner.id!==state.current||state.attackRoll==null||state.gameOver);
+
+    const isAITurn = AI_ENABLED && state.current === 1;
+    const disableAITurnClick = isAITurn && owner.id === 1;
+
+    play.disabled = (
+      owner.id!==state.current ||
+      state.attackRoll==null ||
+      state.gameOver ||
+      disableAITurnClick
+    );
+
     play.onclick=()=>playSpecial(owner,card);
     act.appendChild(play);
   }
@@ -295,6 +338,11 @@ function updateHPUI(node,card){
 function rollAndShow(){
   if(state.gameOver){
     log('Game is over. Press Reset to play again.');
+    return;
+  }
+  // prevent human from rolling during AI's turn
+  if(AI_ENABLED && state.current===1){
+    log("It's the AI's turn. Please wait.");
     return;
   }
   if(state.hasRolled){
@@ -342,6 +390,13 @@ function playSpecial(owner,card){
   if(state.gameOver) return;
   if(owner.id!==state.current)return log('Not your turn.');
   if(state.attackRoll==null)return log('Roll first.');
+
+  // AI will not use specials (Option A simple AI)
+  if (AI_ENABLED && owner.id === 1){
+    log('AI does not use special cards in this mode.');
+    return;
+  }
+
   const r=state.attackRoll; 
   state.attackRoll=null;
   switch(card.type){
@@ -551,6 +606,51 @@ function doSwap(o,c,r){
   step1();
 }
 
+// ---------- AI LOGIC (Option A - simple random attacker/target) ----------
+function scheduleAITurn(){
+  if(!AI_ENABLED || state.gameOver) return;
+  if(state.current !== 1) return; // Only Player 2 is AI
+  // small cinematic delay before AI starts
+  setTimeout(aiTakeTurn, 700);
+}
+
+function aiTakeTurn(){
+  if(!AI_ENABLED || state.gameOver) return;
+  if(state.current !== 1) return;
+
+  const me = state.players[1];        // AI
+  const opp = state.players[0];       // Human
+  const myAlive = me.combats.filter(c=>c.alive);
+  const oppAlive = opp.combats.filter(c=>c.alive);
+
+  if(!myAlive.length || !oppAlive.length){
+    // win check will handle this
+    return;
+  }
+
+  // 1) Roll automatically
+  const roll = d20();
+  state.attackRoll = roll;
+  state.hasRolled = true;
+  $('#roll-result').textContent = `Roll: ${roll}`;
+  log(`${me.name} (AI) rolled ${roll}.`);
+
+  // 2) Choose random attacker and target
+  const attacker = myAlive[Math.floor(Math.random()*myAlive.length)];
+  const target   = oppAlive[Math.floor(Math.random()*oppAlive.length)];
+
+  state.selectedOwn = attacker;
+  state.targetOpponent = target;
+  render(); // to show highlights
+
+  // 3) Slight delay before attacking so the player can see
+  setTimeout(()=>{
+    if(!AI_ENABLED || state.gameOver) return;
+    if(state.current !== 1) return; // turn may have changed unexpectedly
+    doAttack(); // this will also call endTurn()
+  }, 700);
+}
+
 // ---------- OVERLAY HELPERS ----------
 function openCardPicker(cards,title,cb){
   const o=document.createElement('div');
@@ -600,6 +700,50 @@ function openSimpleModal(title,bodyHTML){
   $('#info-close-btn').onclick=()=>document.body.removeChild(o);
 }
 
+// Settings modal with AI toggle (ON/OFF)
+function openSettingsModal(){
+  const o = document.createElement('div');
+  o.className = 'modal';
+  const p = document.createElement('div');
+  p.className = 'panel';
+  p.innerHTML = `
+    <h2>Settings</h2>
+    <div class="settings-row">
+      <span>AI Opponent (Player 2):</span>
+      <button id="ai-toggle-btn" class="ai-toggle-btn">${AI_ENABLED ? 'ON' : 'OFF'}</button>
+    </div>
+    <p class="settings-hint">When AI is ON, Player 2 takes its turn automatically.</p>
+    <div style="text-align:right;margin-top:10px;">
+      <button id="settings-close-btn">Close</button>
+    </div>
+  `;
+  o.appendChild(p);
+  o.addEventListener('click',e=>{ if(e.target===o) document.body.removeChild(o); });
+  document.body.appendChild(o);
+
+  const toggleBtn = document.getElementById('ai-toggle-btn');
+  const closeBtn  = document.getElementById('settings-close-btn');
+
+  function refreshToggle(){
+    toggleBtn.textContent = AI_ENABLED ? 'ON' : 'OFF';
+    toggleBtn.classList.toggle('on', AI_ENABLED);
+  }
+  refreshToggle();
+
+  toggleBtn.addEventListener('click', ()=>{
+    AI_ENABLED = !AI_ENABLED;
+    log(`AI Opponent ${AI_ENABLED ? 'enabled' : 'disabled'}.`);
+    refreshToggle();
+
+    // If it's Player 2's turn now and AI just got enabled, schedule AI
+    if(AI_ENABLED && state.current === 1 && !state.gameOver){
+      scheduleAITurn();
+    }
+  });
+
+  closeBtn.addEventListener('click', ()=> document.body.removeChild(o));
+}
+
 // ---------- GAME OVER ----------
 function showGameOver(winnerName){
   state.gameOver = true;
@@ -645,6 +789,10 @@ function endTurn(){
     state.hasRolled=false;
     updateTurnIndicator();
     render();
+    // if after skipping it's actually AI's "virtual" turn, trigger AI
+    if(AI_ENABLED && state.current === 1 && !state.gameOver){
+      scheduleAITurn();
+    }
     return;
   }
 
@@ -655,6 +803,11 @@ function endTurn(){
   state.hasRolled=false;
   updateTurnIndicator();
   render();
+
+  // If AI is enabled and it's now Player 2's turn, schedule AI
+  if(AI_ENABLED && state.current === 1 && !state.gameOver){
+    scheduleAITurn();
+  }
 }
 
 // ---------- MAIN MENU LOGIC ----------
@@ -677,10 +830,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     btn.addEventListener('click', ()=>playSound('click'));
   });
 
-  const startBtn = document.querySelector('.menu-btn[data-action="start"]');
-  const howBtn   = document.querySelector('.menu-btn[data-action="how"]');
+  const startBtn    = document.querySelector('.menu-btn[data-action="start"]');
+  const howBtn      = document.querySelector('.menu-btn[data-action="how"]');
   const settingsBtn = document.querySelector('.menu-btn[data-action="settings"]');
-  const aboutBtn = document.querySelector('.menu-btn[data-action="about"]');
+  const aboutBtn    = document.querySelector('.menu-btn[data-action="about"]');
 
   if(startBtn) startBtn.addEventListener('click', startGame);
 
@@ -692,14 +845,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   if(settingsBtn){
     settingsBtn.addEventListener('click', ()=>{
-      openSimpleModal('Settings',
-        `<p>Settings will be added later:</p>
-         <ul>
-           <li>AI Opponent: On / Off</li>
-           <li>Sound volume slider</li>
-           <li>Animation toggle</li>
-         </ul>
-         <p>For now, enjoy the default settings!</p>`);
+      openSettingsModal();
     });
   }
 

@@ -426,3 +426,27 @@ body.game-started #main-menu {
     max-width: none;
   }
 }
+
+/* ---------- Settings / AI Toggle ---------- */
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ai-toggle-btn {
+  min-width: 70px;
+  font-weight: bold;
+}
+
+.ai-toggle-btn.on {
+  background-color: #16a34a; /* green when ON */
+}
+
+.settings-hint {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-top: 6px;
+}
