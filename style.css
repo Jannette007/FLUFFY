@@ -1,5 +1,6 @@
 /* ===========================================
-   F.L.U.F.F.Y - style.css (Horizontal Layout)
+   F.L.U.F.F.Y - Updated style.css
+   With FX, Swap Picker, Card Zoom, Dice Anim
    =========================================== */
 
 body {
@@ -52,7 +53,7 @@ button {
 button:hover { background-color: #1d4ed8; }
 button:disabled { background-color: #374151; cursor: not-allowed; }
 
-/* ---------- Horizontal Game Board ---------- */
+/* ---------- Horizontal Board ---------- */
 #game-board {
   display: flex;
   flex-direction: row;
@@ -69,7 +70,6 @@ button:disabled { background-color: #374151; cursor: not-allowed; }
   transition: opacity 0.6s ease;
 }
 
-/* Game appears after Start Game */
 body.game-started #game-board {
   opacity: 1;
   pointer-events: auto;
@@ -91,11 +91,11 @@ body.game-started #game-board {
   max-width: 550px;
 }
 
-/* 🌟 Active Player Highlight (with pulse animation) */
+/* Active glowing player panel */
 @keyframes activePulse {
-  0%   { box-shadow: 0 0 8px rgba(250, 204, 21, 0.2); border-color: #facc15; }
-  50%  { box-shadow: 0 0 25px rgba(250, 204, 21, 0.8); border-color: #fde68a; }
-  100% { box-shadow: 0 0 8px rgba(250, 204, 21, 0.2); border-color: #facc15; }
+  0%   { box-shadow: 0 0 8px rgba(250,204,21,0.2); border-color:#facc15; }
+  50%  { box-shadow: 0 0 25px rgba(250,204,21,0.8); border-color:#fde68a; }
+  100% { box-shadow: 0 0 8px rgba(250,204,21,0.2); border-color:#facc15; }
 }
 
 .player-area.active {
@@ -103,7 +103,7 @@ body.game-started #game-board {
   animation: activePulse 1.5s infinite ease-in-out;
 }
 
-/* ---------- Center Column (Log) ---------- */
+/* ---------- Log Column ---------- */
 #center-panel {
   flex: 0.8;
   max-width: 420px;
@@ -112,7 +112,6 @@ body.game-started #game-board {
   align-items: center;
 }
 
-/* ---------- Section Titles ---------- */
 .section-label {
   font-weight: 700;
   margin: 8px 0 4px;
@@ -130,12 +129,11 @@ body.game-started #game-board {
   margin-bottom: 10px;
 }
 
-/* ---------- Specials Row ---------- */
+/* Specials row */
 .special-row {
   display: flex;
   justify-content: center;
   gap: 10px;
-  flex-wrap: nowrap;
   margin-bottom: 10px;
 }
 
@@ -164,7 +162,7 @@ body.game-started #game-board {
   transform: scale(1.05);
 }
 
-/* ---------- Card Styling ---------- */
+/* ---------- Card ---------- */
 .card {
   background: #374151;
   border-radius: 10px;
@@ -175,6 +173,7 @@ body.game-started #game-board {
   align-items: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   transition: transform 0.2s, box-shadow 0.2s, outline 0.2s;
+  position: relative;
 }
 .card:hover { transform: scale(1.05); }
 
@@ -195,7 +194,7 @@ body.game-started #game-board {
   margin: 5px 0;
 }
 
-/* ---------- HP Bar ---------- */
+/* HP */
 .hpbar {
   width: 100%;
   height: 6px;
@@ -216,14 +215,14 @@ body.game-started #game-board {
   margin-bottom: 4px;
 }
 
-/* ---------- Card Buttons ---------- */
+/* Action buttons */
 .actions {
   display: flex;
   justify-content: center;
   margin-top: 4px;
 }
 
-/* ---------- Selected / Target Highlights ---------- */
+/* Selection highlights */
 .card.selected-own {
   outline: 3px solid #3b82f6;
   box-shadow: 0 0 12px #3b82f6;
@@ -231,6 +230,30 @@ body.game-started #game-board {
 .card.selected-target {
   outline: 3px solid #ef4444;
   box-shadow: 0 0 12px #ef4444;
+}
+
+/* ---------- Card Zoom Button ---------- */
+.card-plus {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #1d4ed8;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 0 5px #1d4ed8;
+  transition: transform 0.2s;
+  z-index: 5;
+}
+.card-plus:hover {
+  transform: scale(1.15);
 }
 
 /* ---------- Game Log ---------- */
@@ -245,16 +268,145 @@ body.game-started #game-board {
   padding: 8px;
   margin-top: 10px;
 }
+
 .entry {
-  font-size: 0.85rem;
-  margin-bottom: 3px;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  transition: color 0.3s;
 }
 
-/* ---------- Modal (Heal/Revive/Swap/GameOver/Info) ---------- */
+.entry.newest {
+  color: #facc15;
+  font-weight: bold;
+}
+
+/* ---------- FX: Floating Text ---------- */
+.floating-text {
+  position: fixed;
+  font-size: 1.4rem;
+  font-weight: bold;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: floatUp 1s ease-out forwards;
+}
+.floating-text.damage { color: #ef4444; }
+.floating-text.heal   { color: #22c55e; }
+
+@keyframes floatUp {
+  from { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+  to   { opacity: 0; transform: translate(-50%, -50%) translateY(-40px); }
+}
+
+/* ---------- FX: Shake ---------- */
+.shake {
+  animation: shakeAnim 0.3s;
+}
+@keyframes shakeAnim {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* ---------- FX: Blood Splatter ---------- */
+.blood-splatter {
+  position: fixed;
+  width: 90px;
+  height: 90px;
+  background-image: url('assets/blood.png');
+  background-size: contain;
+  pointer-events: none;
+  animation: splatFade 0.5s forwards;
+}
+@keyframes splatFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ---------- FX: Heal Glow ---------- */
+.heal-glow {
+  animation: healGlow 0.8s ease-out;
+}
+@keyframes healGlow {
+  0% { box-shadow: 0 0 5px #22c55e; }
+  50% { box-shadow: 0 0 15px #22ff88; }
+  100% { box-shadow: 0 0 5px #22c55e; }
+}
+
+/* ---------- Sparkles ---------- */
+.sparkle {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #bbf7d0;
+  animation: sparkleAnim 0.7s ease-out forwards;
+}
+@keyframes sparkleAnim {
+  from { opacity: 1; transform: translate(0,0); }
+  to {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+  }
+}
+
+/* ---------- Dice Animation ---------- */
+#dice-animation {
+  width: 70px;
+  height: 70px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-size: contain;
+  display: none;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg); }
+  40%  { transform: rotate(360deg) scale(1.3); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+/* ---------- Swap Picker Medium Cards ---------- */
+.card-picker-medium {
+  width: 110px;
+  background: #1f2937;
+  padding: 8px;
+  border-radius: 10px;
+  border: 2px solid #4b5563;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.card-picker-medium:hover {
+  transform: scale(1.05);
+  border-color: #60a5fa;
+}
+.card-picker-medium.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px #3b82f6;
+}
+.picker-card-img {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #000;
+  margin-bottom: 6px;
+}
+.picker-card-name {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #f3f4f6;
+}
+
+/* ---------- Modal ---------- */
 .modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7); /* dark dim overlay */
+  background-color: rgba(0,0,0,0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -262,82 +414,14 @@ body.game-started #game-board {
 }
 .panel {
   background: #1e293b;
-  border-radius: 10px;
-  padding: 15px;
-  min-width: 320px;
-  max-width: 600px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-}
-.panel h3, .panel h2 {
-  margin-top: 0;
-}
-.picker-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-}
-.picker-item {
-  background: #374151;
-  border: 1px solid #4b5563;
-  border-radius: 8px;
-  width: 100px;
-  padding: 5px;
-  text-align: center;
-  color: #f9fafb;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.picker-item:hover {
-  transform: scale(1.05);
-  border-color: #60a5fa;
-  box-shadow: 0 0 10px #3b82f6;
-}
-.picker-item.selected {
-  border-color: #3b82f6;
-  box-shadow: 0 0 12px #3b82f6;
-  transform: scale(1.05);
-  background: #1e3a8a;
-}
-.picker-thumb {
-  width: 100%;
-  height: 80px;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 6px;
-  margin-bottom: 3px;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 650px;
+  width: fit-content;
+  box-shadow: 0 0 15px rgba(0,0,0,0.7);
 }
 
-/* Game over panel */
-.game-over-panel {
-  text-align: center;
-}
-
-.info-image {
-  max-width: 100%;
-  border-radius: 8px;
-  display: block;
-  margin: 0 auto 10px;
-}
-
-/* ---------- Confetti ---------- */
-.confetti-piece {
-  position: fixed;
-  top: -10px;
-  width: 8px;
-  height: 14px;
-  border-radius: 2px;
-  opacity: 0.9;
-  animation: confFall 3s linear forwards;
-  z-index: 1500;
-}
-@keyframes confFall {
-  0% { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(110vh) rotate(720deg); }
-}
-
-/* ---------- MAIN MENU ---------- */
+/* ---------- Main Menu ---------- */
 #main-menu {
   position: fixed;
   inset: 0;
@@ -345,8 +429,6 @@ body.game-started #game-board {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-
   background: linear-gradient(-45deg, #020617, #0f172a, #1e3a8a, #0369a1);
   background-size: 400% 400%;
   animation: menuGradient 14s ease infinite;
@@ -372,7 +454,7 @@ body.game-started #main-menu {
   text-align: center;
   padding: 30px 40px;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15,23,42,0.9);
   box-shadow: 0 0 30px rgba(0,0,0,0.6);
 }
 
@@ -385,15 +467,13 @@ body.game-started #main-menu {
 }
 
 .menu-title {
-  margin: 5px 0;
   font-size: 2.2rem;
   letter-spacing: 0.12em;
 }
 
 .menu-subtitle {
-  margin-top: 0;
-  margin-bottom: 18px;
   color: #9ca3af;
+  margin-bottom: 18px;
 }
 
 .menu-buttons {
@@ -408,14 +488,16 @@ body.game-started #main-menu {
   min-width: 180px;
 }
 
-/* ---------- Animations ---------- */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* AI Toggle button */
+.ai-toggle-btn.on {
+  background-color: #16a34a !important;
 }
-.fade-in-up { animation: fadeInUp 0.4s ease-out; }
+.settings-hint {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
 
-/* ---------- Responsive Fallback ---------- */
+/* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   #game-board {
     flex-direction: column;
@@ -423,30 +505,5 @@ body.game-started #main-menu {
   }
   #p1-hand, #p2-hand, #center-panel {
     width: 90%;
-    max-width: none;
   }
-}
-
-/* ---------- Settings / AI Toggle ---------- */
-.settings-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.ai-toggle-btn {
-  min-width: 70px;
-  font-weight: bold;
-}
-
-.ai-toggle-btn.on {
-  background-color: #16a34a; /* green when ON */
-}
-
-.settings-hint {
-  font-size: 0.85rem;
-  color: #9ca3af;
-  margin-top: 6px;
 }

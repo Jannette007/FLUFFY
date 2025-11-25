@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>F.L.U.F.F.Y — Card Battle Prototype</title>
+  <title>F.L.U.F.F.Y — Card Battle</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-  <!-- ========= MAIN MENU (fullscreen overlay) ========= -->
+  <!-- Dice Animation -->
+  <div id="dice-animation"></div>
+
+  <!-- ========= MAIN MENU ========= -->
   <div id="main-menu">
     <div class="menu-inner">
-      <img src="logo.png" alt="F.L.U.F.F.Y Logo" class="menu-logo">
+      <img src="logo.png" class="menu-logo" alt="F.L.U.F.F.Y Logo">
       <h1 class="menu-title">F.L.U.F.F.Y</h1>
       <p class="menu-subtitle">Card Battle</p>
 
@@ -27,36 +30,31 @@
 
   <header>
     <h1>F.L.U.F.F.Y</h1>
-    <div id="controls" class="controls">
+    <div id="controls">
       <button id="btn-roll">Roll D20</button>
       <div id="roll-result">Roll: —</div>
       <div id="turn-indicator">Turn: —</div>
-      <!-- End Turn removed; turns are automatic -->
       <button id="btn-reset" class="secondary">Reset Game</button>
     </div>
   </header>
 
-  <!-- Horizontal layout wrapper -->
   <main id="game-board">
 
     <!-- Player 1 -->
     <section class="player-area" id="p1-hand">
       <h2>Player 1</h2>
 
-      <!-- Combat Cards -->
-      <h3 class="section-label">Combat Cards</h3>
+      <div class="section-label">Combat Cards</div>
       <div class="combat-grid" id="p1-combat"></div>
 
-      <!-- Special Cards -->
-      <h3 class="section-label">Special Cards</h3>
+      <div class="section-label">Special Cards</div>
       <div class="special-row" id="p1-specials"></div>
 
-      <!-- Graveyard -->
-      <h3 class="section-label">Graveyard</h3>
+      <div class="section-label">Graveyard</div>
       <div class="graveyard" id="p1-graveyard"></div>
     </section>
 
-    <!-- Center Column: Log -->
+    <!-- Log Column -->
     <section id="center-panel">
       <h2>Combat Log</h2>
       <div id="log"></div>
@@ -66,34 +64,29 @@
     <section class="player-area" id="p2-hand">
       <h2>Player 2</h2>
 
-      <!-- Combat Cards -->
-      <h3 class="section-label">Combat Cards</h3>
+      <div class="section-label">Combat Cards</div>
       <div class="combat-grid" id="p2-combat"></div>
 
-      <!-- Special Cards -->
-      <h3 class="section-label">Special Cards</h3>
+      <div class="section-label">Special Cards</div>
       <div class="special-row" id="p2-specials"></div>
 
-      <!-- Graveyard -->
-      <h3 class="section-label">Graveyard</h3>
+      <div class="section-label">Graveyard</div>
       <div class="graveyard" id="p2-graveyard"></div>
     </section>
 
   </main>
 
   <footer>
-    <p>Rules implemented: Attack, Heal, Revive, Swap, Skip. Turn-based with D20 roll. Per-card HP tracking.</p>
+    <p>This digital version includes damage, healing, swap, revive, skip, AI, and FX animations.</p>
   </footer>
 
-  <!-- Template for Cards -->
+  <!-- CARD TEMPLATE -->
   <template id="card-template">
     <div class="card">
       <div class="img"></div>
-      <div class="meta">
-        <div class="name"></div>
-        <div class="hpbar"><div class="hpfill"></div></div>
-        <div class="hptext"></div>
-      </div>
+      <div class="name"></div>
+      <div class="hpbar"><div class="hpfill"></div></div>
+      <div class="hptext"></div>
       <div class="actions"></div>
     </div>
   </template>
